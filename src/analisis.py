@@ -88,18 +88,38 @@ def getBoxCategoryPath(RealTime : bool, Threaded : bool):
     RT      = "Real Time"
     NotThr  = "Non Threaded"
     Thr     = "Threaded" 
-    template    = os.getcwd()+"/data/{}/{}/category.png" 
+    template    = os.getcwd()+"/data/{}/{}/box_{}{}.png" 
     path        = ""
     if RealTime:
         if Threaded:
-            path = template.format(RT, Thr)
+            path = template.format(RT, Thr, RealTime, Threaded)
         else:
-            path = template.format(RT, NotThr)
+            path = template.format(RT, NotThr, RealTime, Threaded)
     else:
         if Threaded: 
-            path = template.format(NotRT, Thr)
+            path = template.format(NotRT, Thr, RealTime, Threaded)
         else:
-            path = template.format(NotRT, NotThr)
+            path = template.format(NotRT, NotThr, RealTime, Threaded)
+    
+    return path
+
+def getChartCategoryPath(RealTime : bool, Threaded : bool):
+    NotRT   = "Non Real Time"
+    RT      = "Real Time"
+    NotThr  = "Non Threaded"
+    Thr     = "Threaded" 
+    template    = os.getcwd()+"/data/{}/{}/chart_{}{}.png" 
+    path        = ""
+    if RealTime:
+        if Threaded:
+            path = template.format(RT, Thr, RealTime, Threaded)
+        else:
+            path = template.format(RT, NotThr, RealTime, Threaded)
+    else:
+        if Threaded: 
+            path = template.format(NotRT, Thr, RealTime, Threaded)
+        else:
+            path = template.format(NotRT, NotThr, RealTime, Threaded)
     
     return path
 
@@ -153,19 +173,43 @@ def getBoxPlotCategory(RealTime : bool, Threaded : bool):
     category = pd.DataFrame()
     for spd in speeds:
         meas = loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)
-        #print(meas)
         category["speed "+str(spd)] = meas["tat"]
 
-    print(category)
     category.plot.box(grid=True, figsize=(10, 6))
     plot.savefig(getBoxCategoryPath(RealTime, Threaded))
     plot.close('all')
 
+def printStdDevPerCategory(RealTime : bool, Threaded : bool):
+    speeds = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
+    print(getXLabel(RealTime, Threaded))
+    for spd in speeds:
+        meas = loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)
+        print("speed " + str(spd) + ": \t" + str(meas["tat"].std()))
+    print("-------------")
+
+def getStdDeviationHistogramsPerCategory(RealTime : bool, Threaded : bool):
+    speeds = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
+    deviations = []
+    indx = []
+    for spd in speeds:
+        deviations.append(loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)["tat"].std())
+        indx.append(str(spd))
+    stdplot = pd.DataFrame({"std" : deviations}, index=indx)
+    plot.title(getXLabel(RealTime, Threaded))
+    plot.xlabel("Speed")
+    plot.ylabel("ms")
+    stdplot["std"].plot.bar()
+    plot.savefig(getChartCategoryPath(RealTime, Threaded))
+    plot.close('all')
+
+
+        
 
 def main():
     for rt, thr in [ (i,j) for i in (True, False) for j in (True, False)]:
-        getBoxPlotCategory(rt, thr)
-    
+        #getBoxPlotCategory(rt, thr)
+        #printStdDevPerCategory(rt, thr)
+        getStdDeviationHistogramsPerCategory(rt, thr)
 
 if __name__ == '__main__':
     main() 
