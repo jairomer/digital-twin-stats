@@ -15,16 +15,16 @@ class TestDatasetLoading(unittest.TestCase):
 
         for spd in speeds:
             threadedRt.append(
-                analisis.loadDataset(RealTime=True, Threaded=True, Speed=spd)
+                analisis.loadDataset(RealTime=True, Speed=spd)
             )
             notThreadedRt.append(
-                analisis.loadDataset(RealTime=True, Threaded=False, Speed=spd)
+                analisis.loadDataset(RealTime=True, Speed=spd)
             )
             threadedNotRt.append(
-                analisis.loadDataset(RealTime=False, Threaded=True, Speed=spd)
+                analisis.loadDataset(RealTime=False, Speed=spd)
             )            
             notThreadedNotRt.append(
-                analisis.loadDataset(RealTime=False, Threaded=False, Speed=spd)
+                analisis.loadDataset(RealTime=False, Speed=spd)
             )
         
         for spd in speeds:

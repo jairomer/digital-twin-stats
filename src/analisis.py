@@ -43,88 +43,55 @@ import pandas as pd
 import matplotlib.pyplot as plot
 
 
-def getDataPath(RealTime : bool, Threaded : bool, Speed : int):
+def getDataPath(RealTime : bool, Speed : int):
     NotRT   = "Non Real Time"
     RT      = "Real Time"
-    NotThr  = "Non Threaded"
-    Thr     = "Threaded" 
-    template    = os.getcwd()+"/data/{}/{}/latency_wifi_speed_{}.csv" 
+    template    = os.getcwd()+"/data/{}/Pro/latency_wifi_speed_{}.csv" 
     path        = ""
     if RealTime:
-        if Threaded:
-            path = template.format(RT, Thr, Speed)
-        else:
-            path = template.format(RT, NotThr, Speed)
+        path = template.format(RT, Speed)
     else:
-        if Threaded: 
-            path = template.format(NotRT, Thr, Speed)
-        else:
-            path = template.format(NotRT, NotThr, Speed)
-    
+        path = template.format(NotRT, Speed)
     return path
 
 def getBoxPlotPath(RealTime : bool, Threaded : bool, Speed : int):
     NotRT   = "Non Real Time"
     RT      = "Real Time"
-    NotThr  = "Non Threaded"
-    Thr     = "Threaded" 
-    template    = os.getcwd()+"/data/{}/{}/latency_wifi_speed_{}.png" 
+    template    = os.getcwd()+"/data/{}/Pro/latency_wifi_speed_{}.png" 
     path        = ""
     if RealTime:
-        if Threaded:
-            path = template.format(RT, Thr, Speed)
-        else:
-            path = template.format(RT, NotThr, Speed)
+        path = template.format(RT, Speed)
     else:
-        if Threaded: 
-            path = template.format(NotRT, Thr, Speed)
-        else:
-            path = template.format(NotRT, NotThr, Speed)
+        path = template.format(NotRT, Speed)
     
     return path
 
-def getBoxCategoryPath(RealTime : bool, Threaded : bool):
+def getBoxCategoryPath(RealTime : bool):
     NotRT   = "Non Real Time"
     RT      = "Real Time"
-    NotThr  = "Non Threaded"
-    Thr     = "Threaded" 
-    template    = os.getcwd()+"/data/{}/{}/box_{}{}.png" 
+    template    = os.getcwd()+"/data/{}/Pro/box_{}.png" 
     path        = ""
     if RealTime:
-        if Threaded:
-            path = template.format(RT, Thr, RealTime, Threaded)
-        else:
-            path = template.format(RT, NotThr, RealTime, Threaded)
+        path = template.format(RT, RealTime)
     else:
-        if Threaded: 
-            path = template.format(NotRT, Thr, RealTime, Threaded)
-        else:
-            path = template.format(NotRT, NotThr, RealTime, Threaded)
+        path = template.format(NotRT, RealTime)
     
     return path
 
-def getChartCategoryPath(RealTime : bool, Threaded : bool):
+def getChartCategoryPath(RealTime : bool):
     NotRT   = "Non Real Time"
     RT      = "Real Time"
-    NotThr  = "Non Threaded"
-    Thr     = "Threaded" 
-    template    = os.getcwd()+"/data/{}/{}/chart_{}{}.png" 
+    template    = os.getcwd()+"/data/{}/Pro/chart_{}.png" 
     path        = ""
     if RealTime:
-        if Threaded:
-            path = template.format(RT, Thr, RealTime, Threaded)
-        else:
-            path = template.format(RT, NotThr, RealTime, Threaded)
+        path = template.format(RT, RealTime)
     else:
-        if Threaded: 
-            path = template.format(NotRT, Thr, RealTime, Threaded)
-        else:
-            path = template.format(NotRT, NotThr, RealTime, Threaded)
+        path = template.format(NotRT, RealTime)
     
     return path
 
-def loadDataset(RealTime : bool, Threaded : bool, Speed : int):
-    file = Path(getDataPath(RealTime, Threaded, Speed))
+def loadDataset(RealTime : bool, Speed : int):
+    file = Path(getDataPath(RealTime, Speed))
     if not file.is_file():
         raise FileNotFoundError("Not a file: "+path) 
 
@@ -143,73 +110,92 @@ def obtainAllBoxPlots():
     plot.ylabel("ms")
 
     for spd in speeds:
-        for rt, thr in (True, False):
-            tt = loadDataset(RealTime=rt, Threaded=thr, Speed=spd)
+        for rt in (True, False):
+            tt = loadDataset(RealTime=rt, Speed=spd)
             plot.ylabel("ms")
             tt.plot.box(grid=True)
-            plot.savefig(getBoxPlotPath(RealTime=rt, Threaded=thr, Speed=spd))
+            plot.savefig(getBoxPlotPath(RealTime=rt, Speed=spd))
             plot.clf() 
             print(".",)
-        
+
     plot.close('all')
 
-def getXLabel(RealTime : bool, Threaded : bool):
+def getXLabel(RealTime : bool):
     if RealTime:
-        if Threaded:
-            return "Realtime/Threaded"
-        else:
-            return "Realtime/Non-Threaded"
+            return "Realtime"
     else:
-        if Threaded:
-            return "Non-Realtime/Threaded"
-        else:
-            return "Non-Realtime/NonThreaded"
+            return "Non-Realtime"
 
-def getBoxPlotCategory(RealTime : bool, Threaded : bool):
+def getBoxPlotCategory(RealTime : bool):
     speeds = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
     plot.ylabel("ms")
-    plot.xlabel(getXLabel(RealTime, Threaded))
+    plot.xlabel(getXLabel(RealTime))
 
     category = pd.DataFrame()
     for spd in speeds:
-        meas = loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)
+        meas = loadDataset(RealTime=RealTime, Speed=spd)
         category["speed "+str(spd)] = meas["tat"]
 
     category.plot.box(grid=True, figsize=(10, 6))
-    plot.savefig(getBoxCategoryPath(RealTime, Threaded))
+    plot.savefig(getBoxCategoryPath(RealTime))
     plot.close('all')
 
-def printStdDevPerCategory(RealTime : bool, Threaded : bool):
+def printStdDevPerCategory(RealTime : bool):
     speeds = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
     print(getXLabel(RealTime, Threaded))
     for spd in speeds:
-        meas = loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)
+        meas = loadDataset(RealTime=RealTime, Speed=spd)
         print("speed " + str(spd) + ": \t" + str(meas["tat"].std()))
     print("-------------")
 
-def getStdDeviationHistogramsPerCategory(RealTime : bool, Threaded : bool):
+def getStdDeviationHistogramsPerCategory(RealTime : bool):
     speeds = [-3, -2, -1, 0, 1, 2, 3, 4, 5, 6]
     deviations = []
     indx = []
     for spd in speeds:
-        deviations.append(loadDataset(RealTime=RealTime, Threaded=Threaded, Speed=spd)["tat"].std())
+        deviations.append(loadDataset(RealTime=RealTime, Speed=spd)["tat"].std())
         indx.append(str(spd))
     stdplot = pd.DataFrame({"std" : deviations}, index=indx)
-    plot.title(getXLabel(RealTime, Threaded))
+    plot.title(getXLabel(RealTime))
     plot.xlabel("Speed")
     plot.ylabel("ms")
     stdplot["std"].plot.bar()
-    plot.savefig(getChartCategoryPath(RealTime, Threaded))
+    plot.savefig(getChartCategoryPath(RealTime))
     plot.close('all')
 
+def getPingLatencyDataset(): 
+    file = Path("data/ping/ping.csv")
+    if not file.is_file():
+        raise FileNotFoundError("Not a file: "+path) 
 
+    # Read CSV with pandas and return it.
+    dt = pd.read_csv(file, sep=",")
+    return dt
+
+def plotBoxPing(dataset):
+    plot.ylabel("ms")
+    plot.xlabel("Wifi Link Latency")
+    dataset.plot.box(grid=True, figsize=(10, 6))
+    plot.savefig("data/ping")
+    plot.close('all')
+
+def printPingStatistics(dataset): 
+    # Get Average. 
+    print("Wifi ping average: {}".format(dataset["ms"].mean()))
+    # Get Middle
+    print("Wifi ping median: {}".format(dataset["ms"].median()))
         
-
 def main():
-    for rt, thr in [ (i,j) for i in (True, False) for j in (True, False)]:
-        #getBoxPlotCategory(rt, thr)
-        #printStdDevPerCategory(rt, thr)
-        getStdDeviationHistogramsPerCategory(rt, thr)
+    print ("Obtaining box and histograms...",)
+    for rt in [True, False]:
+        print(".",)
+        getBoxPlotCategory(rt)
+        getStdDeviationHistogramsPerCategory(rt)
+    
+    link_lat = getPingLatencyDataset()
+    plotBoxPing(link_lat)
+    printPingStatistics(link_lat)
+
 
 if __name__ == '__main__':
     main() 
