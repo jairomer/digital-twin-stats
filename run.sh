@@ -1,3 +1,3 @@
 #!/bin/bash 
 
-python3 src/analisis.py
+virtualenv/bin/python3 src/analisis.py

@@ -2,7 +2,7 @@
 
 import analisis 
 import unittest
-
+import location
 
 class TestDatasetLoading(unittest.TestCase): 
     def test_load(self): 
@@ -22,11 +22,10 @@ class TestDatasetLoading(unittest.TestCase):
             )
             threadedNotRt.append(
                 analisis.loadDataset(RealTime=False, Speed=spd)
-            )            
+            )
             notThreadedNotRt.append(
                 analisis.loadDataset(RealTime=False, Speed=spd)
             )
-        
         for spd in speeds:
             self.assertTrue(len(threadedRt[spd]) > 0)
             print(threadedRt[spd])
